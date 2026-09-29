@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="bn"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>AI King BD</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{--bg:#050b16;--card:#0e1b2c;--line:#1d3a4a;--teal:#22d3c5;--gold:#e8b84a;--txt:#e8f4f6;--mut:#8aa5ad}
+body{background:radial-gradient(circle at 20% 0%,#0b2a3a 0,transparent 45%),var(--bg);color:var(--txt);font-family:system-ui,sans-serif;padding:14px 14px 30px;min-height:100vh}
+.hdr{display:flex;align-items:center;justify-content:space-between;background:#0c1a2b;border:1px solid var(--teal);border-radius:20px;padding:14px 18px;box-shadow:0 0 18px #22d3c533;margin-bottom:18px}
+.logo{font-size:26px;font-weight:800;letter-spacing:.5px}.logo b{color:var(--gold)}
+.lbl{display:inline-block;color:var(--teal);font-weight:700;font-size:14px;background:#0c2230;border-radius:10px;padding:6px 12px;margin:14px 0 8px}
+.box{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px}
+textarea{width:100%;min-height:110px;background:#c9d3d9;color:#0a1622;border:none;border-radius:14px;padding:12px;font-size:17px;resize:none;outline:none}
+.voices{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.v{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px 6px;text-align:center;cursor:pointer}
+.v.on{border-color:var(--teal);box-shadow:0 0 16px #22d3c566}
+.av{width:62px;height:62px;border-radius:50%;margin:0 auto 8px;display:flex;align-items:center;justify-content:center;font-size:30px;background:linear-gradient(135deg,#1c6e78,#0d3a4a)}
+.v h3{font-size:17px}.tag{font-size:11px;color:var(--mut);margin-top:6px}
+.row{display:flex;align-items:center;gap:10px;margin:8px 0}.row span:first-child{width:52px;font-weight:600}
+input[type=range]{flex:1;accent-color:var(--teal)}
+.val{background:var(--teal);color:#032;font-weight:700;border-radius:10px;padding:4px 10px;min-width:50px;text-align:center}
+.gen{width:100%;margin:16px 0 4px;padding:16px;border:none;border-radius:16px;font-size:22px;font-weight:800;color:#fff;background:linear-gradient(90deg,#14b8a6,#3b82f6);box-shadow:0 0 18px #22d3c555}
+.gen:disabled{opacity:.6}
+.pl{display:flex;align-items:center;gap:10px}
+.pb{width:46px;height:46px;border-radius:50%;border:none;background:var(--teal);color:#032;font-size:20px;flex:none}
+.wave{flex:1;height:44px;display:flex;align-items:center;gap:2px}
+.wave i{flex:1;background:#2a4a55;border-radius:2px;min-width:2px}.wave i.p{background:var(--teal)}
+.tm{font-size:13px;color:var(--mut);white-space:nowrap}
+.sh{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.sh button{background:var(--card);border:1px solid var(--line);color:var(--txt);border-radius:14px;padding:12px 2px;font-size:12px}
+.sh button span{display:block;font-size:26px;margin-bottom:4px}
+#msg{color:#ff8a8a;font-size:14px;margin-top:8px;text-align:center}
+</style></head><body>
+<div class="hdr"><div class="logo">👑 <b>AI</b> KING BD</div></div>
+<span class="lbl">✍️ MESSAGE INPUT</span>
+<div class="box"><textarea id="txt" placeholder="এখানে লিখুন..."></textarea></div>
+<span class="lbl">🎙️ VOICE SELECTION</span>
+<div class="voices">
+<div class="v on" data-v="nabila"><div class="av">🧕</div><h3>Nabila</h3><div class="tag">Natural • Warm</div></div>
+<div class="v" data-v="riya"><div class="av">👩</div><h3>Riya</h3><div class="tag">Energetic • Youth</div></div>
+<div class="v" data-v="sara"><div class="av">👩‍💼</div><h3>Sara</h3><div class="tag">Calm • Professional</div></div>
+</div>
+<span class="lbl">🎚️ PITCH &amp; SPEED</span>
+<div class="box">
+<div class="row"><span>Pitch</span><input type="range" id="pitch" min="-12" max="12" step="1" value="0"><span class="val" id="pv">0</span></div>
+<div class="row"><span>Speed</span><input type="range" id="speed" min="0.5" max="2" step="0.1" value="1"><span class="val" id="sv">1.0x</span></div>
+</div>
+<button class="gen" id="gen">✨ ভয়েস তৈরি করুন</button>
+<div id="msg"></div>
+<span class="lbl">🎧 AUDIO PREVIEW</span>
+<div class="box"><div class="pl"><button class="pb" id="pb">▶</button><div class="wave" id="wave"></div><div class="tm" id="tm">00:00 / 00:00</div></div></div>
+<span class="lbl">SHARE</span>
+<div class="sh">
+<button data-p="com.facebook.orca"><span>💬</span>Messenger</button>
+<button data-p="com.whatsapp"><span>🟢</span>WhatsApp</button>
+<button data-p="com.imo.android.imoim"><span>🔵</span>IMO</button>
+<button data-p="org.telegram.messenger"><span>✈️</span>Telegram</button>
+</div>
+<script>
+let voice='nabila',blob=null;const audio=new Audio();
+const $=id=>document.getElementById(id);
+const wave=$('wave');for(let i=0;i<48;i++){const b=document.createElement('i');b.style.height=(8+Math.abs(Math.sin(i*.7)*30)+Math.random()*6)+'px';wave.appendChild(b)}
+const bars=[...wave.children];
+document.querySelectorAll('.v').forEach(e=>e.onclick=()=>{document.querySelectorAll('.v').forEach(x=>x.classList.remove('on'));e.classList.add('on');voice=e.dataset.v});
+$('pitch').oninput=e=>$('pv').textContent=e.target.value;
+$('speed').oninput=e=>$('sv').textContent=Number(e.target.value).toFixed(1)+'x';
+const f=t=>{t=isFinite(t)?t:0;return String(Math.floor(t/60)).padStart(2,'0')+':'+String(Math.floor(t%60)).padStart(2,'0')};
+audio.ontimeupdate=()=>{$('tm').textContent=f(audio.currentTime)+' / '+f(audio.duration);const n=Math.floor(bars.length*audio.currentTime/(audio.duration||1));bars.forEach((b,i)=>b.classList.toggle('p',i<n))};
+audio.onended=()=>$('pb').textContent='▶';
+$('pb').onclick=()=>{if(!blob)return;if(audio.paused){audio.play();$('pb').textContent='⏸'}else{audio.pause();$('pb').textContent='▶'}};
+$('gen').onclick=async()=>{
+  const text=$('txt').value.trim();$('msg').textContent='';
+  if(!text){$('msg').textContent='আগে কিছু লিখুন';return}
+  $('gen').disabled=true;$('gen').textContent='⏳ তৈরি হচ্ছে...';
+  try{
+    const r=await fetch('/tts',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text,voice,speed:$('speed').value,pitch:$('pitch').value})});
+    if(!r.ok)throw new Error('সার্ভার এরর');
+    blob=await r.blob();audio.src=URL.createObjectURL(blob);await audio.play();$('pb').textContent='⏸';
+  }catch(e){$('msg').textContent='ভয়েস তৈরি হয়নি: '+e.message}
+  $('gen').disabled=false;$('gen').textContent='✨ ভয়েস তৈরি করুন';
+};
+document.querySelectorAll('.sh button').forEach(b=>b.onclick=()=>{
+  if(!blob){$('msg').textContent='আগে ভয়েস তৈরি করুন';return}
+  const rd=new FileReader();
+  rd.onload=async()=>{
+    const b64=rd.result.split(',')[1];
+    if(window.Android){Android.shareAudio(b64,b.dataset.p)}
+    else{const file=new File([blob],'voice.mp3',{type:'audio/mpeg'});
+      if(navigator.canShare&&navigator.canShare({files:[file]}))navigator.share({files:[file]});
+      else{const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='voice.mp3';a.click()}}
+  };rd.readAsDataURL(blob);
+});
+</script></body></html>
